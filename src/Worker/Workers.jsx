@@ -15,7 +15,7 @@ import {
   Button,
   Container,
   Input,
-  InputLabel
+  InputLabel,
 } from "@mui/material";
 
 //for the model
@@ -35,12 +35,38 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
 //Validation
-import { useForm } from "react-hook-form";
-import { zodResolver} from "@hookform/resolvers";
-import * as z from "zod";
+import { useForm} from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
+import EditWorker from "./WorkerEditForm";
+const schema = yup.object({
+  selectedFile: yup.string().required('Image is required !'),
+  //pictureUrl: yup.string().required('Image URL is required !'),
+  age: yup.number().integer('Age must be number !').min(18, 'Age must be at least 18').typeError('Age is required  !').required('Age is required !'),
+  firstName: yup.string().required('Worker first name is required !'),
+  middleName: yup.string().required('Worker middle name is required !'),
+  lastName: yup.string().required('Worker last name is required !'),
+  email: yup.string().email('Invalid email address').required('Email is required'),
+  certifiedDatePeriod1: yup.date().typeError('Date is required!').required('Date is required !'),
+  crewRole: yup.string().required('Crew role is required !'),
+  workerPosition: yup.string().required('Worker position is required !'),
+  getFarmNameid: yup.string().required('Select a fish farm name !'),
+});
 
-//const  
+/*const formSchema = z.object({
+  pictureUrl: z.string(),
+  age: z.string(),
+  firstName: z.string(),
+  middleName: z.string(),
+  lastName: z.string(),
+  email: z.string(),
+  certifiedDatePeriod: z.string() ,
+  crewRole: z.string(),
+  workerPosition: z.string(),
+  fishFarmsFarmId: z.string(),
+});*/
 
+  
 //For model pop up
 const style = {
   position: 'absolute',
@@ -52,6 +78,8 @@ const style = {
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
+  overflow: 'scroll',  /* Enable scrolling */
+  height: 700
 };
 
 //For Table css
@@ -64,6 +92,17 @@ const StyledTableCell = styled(TableCell)(({ theme }) => ({
     fontSize: 14,
   },
 }));
+
+const paragraphStyle = {
+  color: "red"
+};
+//css for input Lable
+const labelStyle = {
+  fontFamily: "Arial",
+  fontSize: "16px",
+  fontWeight: "bold",
+  color: "black"
+};
 
 const StyledTableRow = styled(TableRow)(({ theme }) => ({
   '&:nth-of-type(odd)': {
@@ -78,10 +117,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const WorkerList = () => {
 
  //------------------------------------validation ------------------------
-const { register , handleSubmit} = useForm();
-const onFormSubmit =(data) => {
-  console.log(data);
-}
+
 
 
   //set data using hooks
@@ -105,17 +141,18 @@ const onFormSubmit =(data) => {
 //------------------------------------------------------------------end
   //Set variable for add new form
 
- const [pictureUrl, SetpictureUrl] = useState('');
- const [age, Setage] = useState('');
- const [firstName, SetfirstName] = useState('');
- const [middleName, SetmiddleName] = useState('');
- const [lastName, SetlastName] = useState('');
- const [email, Setemail] = useState('');
- const [certifiedDatePeriod1, SetcertifiedDatePeriod1] = useState('');
- const [crewRole, SetcrewRole] = useState('');
- const [workerPosition, SetworkerPosition] = useState('');
+//  const [pictureUrl, SetpictureUrl] = useState('');
+//  const [age, Setage] = useState('');
+//  const [firstName, SetfirstName] = useState('');
+//  const [middleName, SetmiddleName] = useState('');
+//  const [lastName, SetlastName] = useState('');
+//  const [email, Setemail] = useState('');
+//  const [certifiedDatePeriod1, SetcertifiedDatePeriod1] = useState('');
+//  const [crewRole, SetcrewRole] = useState('');
+//  const [workerPosition, SetworkerPosition] = useState('');
  const [fishFarms, setFishFarms] = useState([]);
-  const [fishFarmsFarmId, SetFishFarmsFarmId] = useState('');
+ const [selectedFile, setSelectedFile] = useState(null);
+  // const [fishFarmsFarmId, SetFishFarmsFarmId] = useState('');
  
  //Set variable for edit/update new form
  const [editworkerId, SetEditworkerId] = useState('');
@@ -134,11 +171,18 @@ const onFormSubmit =(data) => {
   const [openEdit, setOpenEdit] = useState(false);
   const handleOpenEdit = () => setOpenEdit(true);
   const handleClose = () => setOpenEdit(false);
+  const [formData, setFormData] = useState({});
 
   // For pop up add
   const [openAdd, setOpenAdd] = useState(false)
   const handleOpenAdd = () => setOpenAdd(true);
   const handleAddClose = () => setOpenAdd(false);
+
+  const handleAddBoatClose = () => {
+    handleAddClose();
+    clear();
+    reset();
+}
 
  
 
@@ -162,6 +206,7 @@ const handleEdit = (workerId) => {
   handleOpenEdit(workerId);
   axios.get(`https://localhost:7102/api/Workers/${workerId}`)
     .then((result) => {
+        setFormData(result.data);
         SetEditworkerId(workerId);
         SetEditpictureUrl(result.data.pictureUrl);
         SetEditage(result.data.age);
@@ -181,11 +226,11 @@ const handleEdit = (workerId) => {
 }
 //-----------------------------------------------------------------------------------------End
 //firm farm dropdown Edit***********************************************************************************************
-const handleFarmNameEdit =(event) => {
-  const getFarmNameid = event.target.value;
-  console.log(getFarmNameid);
-  editSetFishFarmsFarmId(getFarmNameid);
-}
+// const handleFarmNameEdit =(event) => {
+//   const getFarmNameid = event.target.value;
+//   console.log(getFarmNameid);
+//   editSetFishFarmsFarmId(getFarmNameid);
+// }
 
 //OnClickHandleEdit in popup --------------------------------Put fuction-------------------Start
 const handleUpdate = (workerId) =>{
@@ -259,53 +304,103 @@ const handleAddForm = () => {
 }
 
 //firm farm dropdown Add***********************************************************************************************
-const handleFarmNameAdd =(event) => {
-  const getFarmNameid = event.target.value;
-  console.log(getFarmNameid);
-  SetFishFarmsFarmId(getFarmNameid);
-}
+// const handleFarmNameAdd =(event) => {
+//   const getFarmNameid = event.target.value;
+//   console.log(getFarmNameid);
+//   SetFishFarmsFarmId(getFarmNameid);
+// }
+const { register, handleSubmit, formState:{ errors },trigger, reset, setValue } = useForm({
+  resolver: yupResolver(schema),
+  defaultValues:{
+    //  pictureUrl: "",
+    selectedFile: "",
+    age: "",
+    firstName: "",
+    middleName: "",
+    lastName: "",
+    email: "",
+    certifiedDatePeriod: "",
+    crewRole: "",
+    workerPosition: "",
+    fishFarmsFarmId: "",
+  }
+  
+});
+
 
 //onClickHanleAdd new Worker in popup---------------post function---------------------------start
-const handleAdd = () => {
-  console.log("Hello");
+
+const handleUploadImg = (event) => {
+ 
+  const file = event.target.files[0];
+  setSelectedFile(file);
   
-    const url = 'https://localhost:7102/api/Workers/dto'
-    const data = {
-        "pictureUrl": pictureUrl,
-        "age": age,
-        "firstName": firstName,
-        "middleName": middleName,
-        "lastName": lastName,
-        "email": email,
-        "certifiedDatePeriod": certifiedDatePeriod1,
-        "crewRole": crewRole,
-        "workerPosition": workerPosition,
-        "fishFarmsFarmId": fishFarmsFarmId,
+}
+const onSubmit = (formValues) => {
+  console.log("hello");
+  console.log(//formValues.pictureUrl,
+              selectedFile,
+              formValues.age,
+              formValues.firstName,
+              formValues.middleName,
+              formValues.lastName,
+              formValues.email,
+              formValues.certifiedDatePeriod1,
+              formValues.crewRole,
+              formValues.workerPosition,
+              formValues.getFarmNameid    
+    );
+    const url = 'https://localhost:7102/api/Workers/SaveImage'
+    var sd =new FormData()
+    sd.append('age', formValues.age)
+    sd.append('firstName', formValues.firstName)
+    sd.append('middleName', formValues.middleName)
+    sd.append('lastName', formValues.lastName)
+    sd.append('email', formValues.email)
+    sd.append('certifiedDatePeriod', new Date(formValues.certifiedDatePeriod1).toISOString())
+    sd.append('crewRole', formValues.crewRole)
+    sd.append('workerPosition', formValues.workerPosition)
+    sd.append('fishFarmsFarmId', formValues.getFarmNameid)
+    sd.append('ImageFile', selectedFile)
+   /* const data = {
+        //"pictureUrl": formValues.pictureUrl,
+        "age": formValues.age,
+        "firstName": formValues.firstName,
+        "middleName": formValues.middleName,
+        "lastName": formValues.lastName,
+        "email": formValues.email,
+        "certifiedDatePeriod": formValues.certifiedDatePeriod1,
+        "crewRole": formValues.crewRole,
+        "workerPosition": formValues.workerPosition,
+        "fishFarmsFarmId": formValues.getFarmNameid,
+        "ImageFile": selectedFile
         
-    }
+    }*/
     
-    axios.post(url, data)
+    axios.post(url, sd)
     .then((result) => {
       getData();
       clear();
+      reset();
       toast.success('Worker has been added');
       handleAddClose();
     })
     .catch((error) => {
       toast.error(error);
+      
     })
 }
 const clear = () => {
-    SetpictureUrl('');
-    Setage('');
-    SetfirstName('');
-    SetmiddleName('')
-    SetlastName('')
-    Setemail('')
-    SetcertifiedDatePeriod1('');
-    SetcrewRole('');
-    SetworkerPosition('');
-    SetFishFarmsFarmId('');
+    // SetpictureUrl('');
+    // Setage('');
+    // SetfirstName('');
+    // SetmiddleName('')
+    // SetlastName('')
+    // Setemail('')
+    // SetcertifiedDatePeriod1('');
+    // SetcrewRole('');
+    // SetworkerPosition('');
+    // SetFishFarmsFarmId('');
     //setFishFarms();
 
 
@@ -326,14 +421,15 @@ const clear = () => {
 //------------------------------------------------------------------end 
 
 
-
+//onSubmit={handleSubmit(onFormSubmit)}
   return (
     
-    <Container maxWidth={false} className="my-container"  onSubmit={handleSubmit(onFormSubmit)}>
+    <Container maxWidth={true} className="my-container"  >
+      <Typography variant="h4"><br/>&nbsp;&nbsp;Workers</Typography>
+        <Typography align="right"><Button variant="contained" color="primary" onClick={() => handleAddForm()} > + Add new Worker</Button>&nbsp;&nbsp;</Typography><hr/>
       <ToastContainer/>
       <TableContainer component={Paper}>
-        <Typography variant="h4"><br/>&nbsp;&nbsp;Workers</Typography>
-        <Typography align="right"><Button variant="contained" color="primary" onClick={() => handleAddForm()} > + Add new Worker</Button>&nbsp;&nbsp;</Typography><hr/>
+        
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <StyledTableRow>
@@ -395,7 +491,7 @@ const clear = () => {
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description">
-              <Box sx={style}>
+              {/* <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
                   Edit Worker
                 </Typography>
@@ -462,81 +558,93 @@ const clear = () => {
                   <Button variant="contained" color="primary" onClick={() => handleUpdate()} >Edit</Button>&nbsp;
                   <Button variant="contained" color="info" onClick={() => handleClose()} > Close </Button>
                 </Typography>
-              </Box>
+              </Box> */}
+              <EditWorker handleClose={handleClose} fishFarms={fishFarms} getData={getData} formData={formData}/>
           </Modal>
 
           <Modal
         open={openAdd}
-        onClose={handleAddClose}
+        onClose={handleAddBoatClose}
         aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description">
-          
-        <Box sx={style}>
+        aria-describedby="modal-modal-description"
+        >
+          <form onSubmit={handleSubmit(onSubmit)}>
+        <Box sx={style} >
           <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
               Add new Worker
+          </Typography><hr/>
+          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
+          {/* <InputLabel style={labelStyle}>Workers Picture URL&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Workers Picture URL"  {...register("pictureUrl")}  onChange={(e) =>{setValue("pictureUrl",e.target.value); trigger("pictureUrl");}}></Input></InputLabel><p style={paragraphStyle}>{errors.pictureUrl?.message}</p> */}
+          <Typography id="modal-modal-description" sx={{ mt: 2 }}> 
+          <Box sx={{ maxWidth: 300 }}>
+              <FormControl fullWidth>
+              <InputLabel style={labelStyle} >Select Worker Image&nbsp;:&nbsp;</InputLabel> <br/><br/>
+                <Input type="file" className="form-control" {...register("selectedFile")}  onChange={(e) =>{handleUploadImg(e); trigger("selectedFile"); }}></Input>
+            </FormControl><p style={paragraphStyle}>{errors.selectedFile?.message}</p>
+          </Box> 
+          </Typography>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Workers Picture URL&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Workers Picture URL" value={pictureUrl} onChange={(e) => SetpictureUrl(e.target.value) } {...register("pictureUrl")}></Input></InputLabel>
-          
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Worker Age&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="Enter Worker Age" value={age} onChange={(e) => Setage(e.target.value) } {...register("age")}></Input> </InputLabel>
+          <InputLabel style={labelStyle}>Worker Age&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="Enter Worker Age" {...register("age")}  onChange={(e) => {setValue("age",e.target.value); trigger("age");} } ></Input> </InputLabel><p style={paragraphStyle}>{errors.age?.message}</p>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-          <InputLabel>First Name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter Worker First Name" value={firstName} onChange={(e) => SetfirstName(e.target.value) } {...register("firstName")}></Input> </InputLabel>
+          <InputLabel style={labelStyle}>First Name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter Worker First Name" {...register("firstName")}  onChange={(e) => {setValue("firstName",e.target.value); trigger("firstName");} }/></InputLabel><p style={paragraphStyle}>{errors.firstName?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Middle Name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter Worker Middle Name" value={middleName} onChange={(e) => SetmiddleName(e.target.value) } {...register("middleName")}></Input> </InputLabel>
+          <InputLabel style={labelStyle}>Middle Name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter Worker Middle Name" {...register("middleName")}  onChange={(e) => {setValue("middleName",e.target.value); trigger("middleName");} } ></Input> </InputLabel><p style={paragraphStyle}>{errors.middleName?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Last Name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter Worker Last Name" value={lastName} onChange={(e) => SetlastName(e.target.value) } {...register("lastName")}></Input> </InputLabel>
+          <InputLabel style={labelStyle}>Last Name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter Worker Last Name" {...register("lastName")}  onChange={(e) => {setValue("lastName",e.target.value); trigger("lastName");} }/> </InputLabel><p style={paragraphStyle}>{errors.lastName?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Worker Email&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="email" className="form-control" placeholder="Enter Worker Email" value={email} onChange={(e) => Setemail(e.target.value) } {...register("email")}></Input> </InputLabel>
+          <InputLabel style={labelStyle}>Worker Email&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="email" className="form-control" placeholder="Enter Worker Email" {...register("email")} onChange={(e) => {setValue("email",e.target.value); trigger("email");} } ></Input> </InputLabel><p style={paragraphStyle}>{errors.email?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Certified Date Period:&nbsp;&nbsp;&nbsp;:&nbsp;
-          <Input type="date" className="form-control"  value={certifiedDatePeriod1} onChange={(e) => SetcertifiedDatePeriod1(e.target.value) }  {...register("certifiedDatePeriod1")}></Input></InputLabel>
+          <InputLabel style={labelStyle} >Certified Date Period:&nbsp;&nbsp;&nbsp;:&nbsp;
+          <Input type="date" min="2000-01-01" max="2100-12-31" className="form-control"  {...register("certifiedDatePeriod1")} onChange={(e) => {setValue("certifiedDatePeriod1",e.target.value); trigger("certifiedDatePeriod1");} }  pattern="\d{4}-\d{2}-\d{2}"></Input></InputLabel><p style={paragraphStyle}>{errors.certifiedDatePeriod1?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
           
               <Box sx={{ maxWidth: 300 }}>
-                  <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">--- Crew Role ---</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select" value={crewRole} onChange={(e) => SetcrewRole(e.target.value)} {...register("crewRole")}>
+                  <FormControl fullWidth >
+                  <InputLabel id="demo-simple-select-label" style={labelStyle}>--- Crew Role ---</InputLabel>
+                    <Select labelId="demo-simple-select-label" id="demo-simple-select" {...register("crewRole")}  onChange={(e) => {setValue("crewRole",e.target.value); trigger("crewRole");}}  ><p style={paragraphStyle}>{errors.crewRole?.message}</p>
                           <MenuItem >--Select--</MenuItem>
                           <MenuItem value={'CEO'}>CEO</MenuItem>
                           <MenuItem value={'Worker'}>Worker</MenuItem>
                           <MenuItem value={'Captain'}>Captain</MenuItem>
-                    </Select>
+                    </Select><p style={paragraphStyle}>{errors.crewRole?.message}</p>
                   </FormControl>
                 </Box>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Working Position&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Working Position" value={workerPosition} onChange={(e) => SetworkerPosition(e.target.value) } {...register("workerPosition")}></Input> </InputLabel>
+          <InputLabel style={labelStyle}>Working Position&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Working Position" 
+          {...register("workerPosition")} onChange={(e) => { setValue("workerPosition", e.target.value); trigger("workerPosition");} } ></Input> </InputLabel><p style={paragraphStyle}>{errors.workerPosition?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
           
               <Box sx={{ maxWidth: 300 }}>
                   <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">-- Select a fish farm name --</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select"  onChange={(e) => handleFarmNameAdd(e, register)} >
+                  <InputLabel id="demo-simple-select-label" style={labelStyle}>-- Select a fish farm name --</InputLabel>
+                    <Select labelId="demo-simple-select-label" id="demo-simple-select"  {...register("getFarmNameid")} onChange={(e) => { setValue("getFarmNameid", e.target.value); trigger("getFarmNameid");}} >
                     <MenuItem >--Select--</MenuItem>
                             { fishFarms.map((fishFarm) => {
                               return (
                                   <MenuItem key={fishFarm.farmId} value={fishFarm.farmId}>{fishFarm.farmName}</MenuItem>
                               )
                             })}
-                    </Select>
+                    </Select><p style={paragraphStyle}>{errors.getFarmNameid?.message}</p>
                   </FormControl>
                 </Box>
           </Typography>
           <br/>
           <Typography align="right"><hr/>
-          <Button variant="contained" color="primary" onClick={() => handleAdd()} >Add</Button>&nbsp;
-          <Button variant="contained" color="info" onClick={() => handleAddClose()} > Close </Button>
+          {/*<Button variant="contained" color="primary" onClick={() => onSubmit()} >Add</Button>*/}
+           <Button type="submit"  variant="contained" color="info"  > Add </Button>&nbsp;&nbsp; 
+          <Button variant="contained" color="info" onClick={() => handleAddBoatClose()} > Close </Button>
           </Typography>
         </Box>
+        </form>
       </Modal>
 
       </TableContainer><br/>

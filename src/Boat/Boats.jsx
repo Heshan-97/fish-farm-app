@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useState, useEffect} from "react";
+
+//import { Link, useNavigate } from 'react-router-dom';
 //For Table
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -27,6 +29,31 @@ import axios from "axios";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+//Validation import
+import { useForm} from "react-hook-form";
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from "yup";
+//import EditTest from "./BoatEditTest";
+import EditBoat from "./BoatEditForm";
+const schema = yup.object({
+  boatName: yup.string().required('Boat name is required !'),
+  gpsPosition: yup.string('GPS position must be number !').typeError('GPS position is required !').required('GPS position is required !'),
+  noOfCages: yup.number('Cages must be number !').min(0, 'Cages must be 0 or positive number !').integer('Cages must be an integer').typeError('No of cages is required !').required('No of cages is required !'),
+  getFarmNameid: yup.string().required('Select a fish farm name !'),
+});
+
+
+//css for error message
+const paragraphStyle = {
+  color: "red"
+};
+//css for input Lable
+const labelStyle = {
+  fontFamily: "Arial",
+  fontSize: "16px",
+  fontWeight: "bold",
+  color: "black"
+};
 
 //For model pop up
 const style = {
@@ -34,7 +61,7 @@ const style = {
   top: '50%',
   left: '50%',
   transform: 'translate(-50%, -50%)',
-  width: 400,
+  width: 600,
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
@@ -61,8 +88,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     border: 0,
   },
 }));
+
+
 const BoatList = () => {
 
+  /*const navigate  = useNavigate();
+   
+  const handleClick = (boatId) => { ******************************<input type="submit" value=" Edit " onClick={() => handleUpdate()} style={{ backgroundColor: 'cadetblue', color: 'white', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}></input>&nbsp;***************************************
+   
+    navigate('/boatEditForm/:boatId'); 
+  };
+*/
   //set data using hooks
   const [data, setData] = useState([]);
 
@@ -83,54 +119,63 @@ const BoatList = () => {
   }
 //------------------------------------------------------------------end
   //Set variable for add new form
- const [boatName, SetboatName] = useState('');
- const [gpsPosition, SetgpsPosition] = useState('');
- const [noOfCages, SetNoOfCages] = useState('');
+ //const [boatName, SetboatName] = useState('');
+ //const [gpsPosition, SetgpsPosition] = useState('');
+ //const [noOfCages, SetNoOfCages] = useState('');
  const [fishFarms, setFishFarms] = useState([]);
-  const [fishFarmsFarmId, SetFishFarmsFarmId] = useState('');
+ // const [fishFarmsFarmId, SetFishFarmsFarmId] = useState('');
 
  //Set variable for edit/update new form
- const [editboatId, SetEditboatId] = useState('');
- const [editboatName, SetEditboatName] = useState('');
- const [editGpsPosition, SetEditGpsPosition] = useState('');
- const [editNoOfCages, SetEditNoOfCages] = useState('');
- const [editfishFarmsFarmId, editSetFishFarmsFarmId] = useState('');
+//  const [editboatId, SetEditboatId] = useState('');
+//  const [editboatName, SetEditboatName] = useState('');
+//  const [editGpsPosition, SetEditGpsPosition] = useState('');
+//  const [editNoOfCages, SetEditNoOfCages] = useState('');
+//  const [editfishFarmsFarmId, editSetFishFarmsFarmId] = useState('');
 
   //For pop up edit
   const [openEdit, setOpenEdit] = useState(false);
   const handleOpenEdit = () => setOpenEdit(true);
   const handleClose = () => setOpenEdit(false);
+  const [formData, setFormData] = useState({});
 
   // For pop up add
   const [openAdd, setOpenAdd] = useState(false)
   const handleOpenAdd = () => setOpenAdd(true);
   const handleAddClose = () => setOpenAdd(false);
-
+  
+const handleAddBoatClose = () => {
+    handleAddClose();
+    clear();
+    reset();
+}
  
 
 //OnClickHandleEdit in form--------------------------GetbyId function-------------------------Start
+//onClick={() => handleEdit(item.boatId)}
 const handleEdit = (boatId) => {
-  //useEffect(() => {    //get farmlist from farm table
+  
+  console.log(boatId);
   const getFarmName =() => {
     axios.get('https://localhost:7102/api/FishFarm')
       .then((response) => {
         setFishFarms(response.data);
-        //toast.success('Farm name list has been loaded');
       })
       .catch((error) => {
         console.log(error);
       })
     }
     getFarmName();
-  //}, []); 
   handleOpenEdit(boatId);
+  console.log(boatId);
   axios.get(`https://localhost:7102/api/Boat/${boatId}`)
     .then((result) => {
-      SetEditboatId(boatId);
-      SetEditboatName(result.data.boatName);
-      SetEditGpsPosition(result.data.gpsPosition);
-      SetEditNoOfCages(result.data.noOfCages);
-      editSetFishFarmsFarmId(result.target.fishFarmsFarmId);
+      setFormData(result.data);
+      // SetEditboatId(boatId);
+      // SetEditboatName(result.data.boatName);
+      // SetEditGpsPosition(result.data.gpsPosition);
+      // SetEditNoOfCages(result.data.noOfCages);
+      // editSetFishFarmsFarmId(result.data.fishFarmsFarmId);
+
     })
     .catch((error) => {
       console.error(error);
@@ -138,13 +183,13 @@ const handleEdit = (boatId) => {
 }
 //-----------------------------------------------------------------------------------------End
 //firm farm dropdown Edit***********************************************************************************************
-const handleFarmNameEdit =(event) => {
+/*const handleFarmNameEdit =(event) => {
   const getFarmNameid = event.target.value;
   console.log(getFarmNameid);
   editSetFishFarmsFarmId(getFarmNameid);
-}
+}*/
 //OnClickHandleEdit in popup --------------------------------Put fuction-------------------Start
-const handleUpdate = (boatId) =>{
+/*const handleUpdate = () =>{
     const url = `https://localhost:7102/api/Boat?id=${editboatId}`;
     const data = {
       "boatId" : editboatId,
@@ -164,7 +209,7 @@ const handleUpdate = (boatId) =>{
     .catch((error) => {
       toast.error(error);
     })
-}
+}*/
 
 
 //----------------------------------------------------------------------------------------End
@@ -189,58 +234,88 @@ const handleDelete = (boatId) =>{
 //---------------------------------------------------------------------------------------------End
 
 //onClickHanleAdd new boat in from
-const handleAddForm = () => {
-  //useEffect(() => {    //get farmlist from farm table
+const handleAddForm = () =>  {
   const getFarmName =() => {
     axios.get('https://localhost:7102/api/FishFarm')
       .then((response) => {
-        setFishFarms(response.data) ;
-        //toast.success('Farm name has been loaded');
+        setFishFarms(response.data);
       })
       .catch((error) => {
         console.log(error);
       })
     }
-    getFarmName();
-  //}, []); 
+    getFarmName() ;
   handleOpenAdd();
 }
-//firm farm dropdown Add***********************************************************************************************
-const handleFarmNameAdd =(event) => {
-  const getFarmNameid = event.target.value;
-  console.log(getFarmNameid);
-  SetFishFarmsFarmId(getFarmNameid);
+const { register, handleSubmit, formState:{ errors },trigger, reset, setValue } = useForm({
+  resolver: yupResolver(schema),
+  defaultValues:{
+      boatName: "",
+      gpsPosition: "",
+      noOfCages: "",
+      getFarmNameid: "",
+  }
+  
+});
+/*const handleValidation = async (event) => {
+  await trigger(event.target.value); // Trigger validation for the field with the given name
+  
+};*/
+
+
+//Add new fish farm handlers ***********************************************************************************************
+// const handleFarmNameAdd =(event) => {
+//   //trigger("getFarmNameid");
+//   const getFarmNameid = event.target.value;
+//   console.log(getFarmNameid);
+//   SetFishFarmsFarmId(getFarmNameid);
+// }
+/*const handleBoatName = (event) => {
+  const getBoatNmae = event.target.value;
+  console.log(getBoatNmae);
+  SetboatName(getBoatNmae);
 }
+const handleBoatGpsPosi = (event) => {
+  const getGpsPosi = event.target.value;
+  console.log(getGpsPosi);
+  SetgpsPosition(getGpsPosi);
+} 
+const handleBoatNoOfCages = (event) => {
+  const getNoOfCages = event.target.value;
+  console.log(getNoOfCages);
+  SetNoOfCages(getNoOfCages);
+} */
 //onClickHanleAdd new boat in popup---------------post function---------------------------start
-const handleAdd = () => {
+const onSubmit = (formValues) => {
     const url = 'https://localhost:7102/api/Boat'
     const data = {
-      "boatName": boatName,
-      "gpsPosition": gpsPosition,
-      "noOfCages": noOfCages,
-      "fishFarmsFarmId" : fishFarmsFarmId
+      "boatName": formValues.boatName,
+      "gpsPosition": formValues.gpsPosition,
+      "noOfCages": formValues.noOfCages,
+      "fishFarmsFarmId" : formValues.getFarmNameid
     }
     axios.post(url, data)
     .then((result) => {
       getData();
       clear();
       toast.success('Boat has been added');
-      handleAddClose();
+      handleAddBoatClose();
     })
     .catch((error) => {
       toast.error(error);
     })
 }
+
 const clear = () => {
-  SetboatName('');
-  SetgpsPosition('');
-  SetNoOfCages('');
-  SetFishFarmsFarmId('');
-  SetEditboatId('')
-  SetEditboatName('')
-  SetEditGpsPosition('')
-  SetEditNoOfCages('');
-  SetEditNoOfCages('');
+  //SetboatName('');
+  //SetgpsPosition('');
+  //SetNoOfCages('');
+  //SetFishFarmsFarmId('');
+  // SetEditboatId('')
+  // SetEditboatName('')
+  // SetEditGpsPosition('')
+  // SetEditNoOfCages('');
+  // SetEditNoOfCages('');
   
 
 }
@@ -298,18 +373,19 @@ const clear = () => {
             onClose={handleClose}
             aria-labelledby="modal-modal-title"
             aria-describedby="modal-modal-description">
+             {/* <form onSubmit={handleSubmit(onSubmit)}>
               <Box sx={style}>
                 <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
                   Edit Boat
-                </Typography>
+                </Typography><hr/>
                 <Typography id="modal-modal-text" sx={{ mt: 2 }}>
                     <InputLabel>Boat name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Edit boat name" value={editboatName} onChange={(e) => SetEditboatName(e.target.value)}></Input> </InputLabel>
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <InputLabel>GPS position&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Edit GPS position" value={editGpsPosition} onChange={(e) => SetEditGpsPosition(e.target.value)}></Input> </InputLabel>
+                    <InputLabel>GPS position&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="Edit GPS position" value={editGpsPosition} onChange={(e) => SetEditGpsPosition(e.target.value)}></Input> </InputLabel>
                 </Typography>
                 <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <InputLabel>No of Cages&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Edit No of Cages " value={editNoOfCages} onChange={(e) => SetEditNoOfCages(e.target.value)}> </Input></InputLabel>
+                    <InputLabel>No of Cages&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="Edit No of Cages " value={editNoOfCages} onChange={(e) => SetEditNoOfCages(e.target.value)}> </Input></InputLabel>
                 </Typography>
                 <Typography id="modal-modal-text" sx={{ mt: 2 }}>
               <InputLabel>Famrm ID&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Working farm name" value={editfishFarmsFarmId} onChange={(e) => editSetFishFarmsFarmId(e.target.value) } disabled></Input> </InputLabel>
@@ -317,7 +393,7 @@ const clear = () => {
               <Box sx={{ maxWidth: 350 }}>
                   <FormControl fullWidth>
                   <InputLabel id="demo-simple-select-label">-- Select Fish Farm Name --:</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select"  value={editfishFarmsFarmId} onChange={(e) => handleFarmNameEdit(e)} >
+                    <Select labelId="demo-simple-select-label" id="demo-simple-select" label="-- Select a fish farm name --"  value={editfishFarmsFarmId} onChange={(e) => handleFarmNameEdit(e)} >
                             <MenuItem >--Select--</MenuItem>
                             { fishFarms.map((fishFarm) => {
                               return (
@@ -330,52 +406,62 @@ const clear = () => {
           </Typography>
                 <br/>
                 <Typography align="right"><hr/>
+                
                   <Button variant="contained" color="primary" onClick={() => handleUpdate()} >Edit</Button>&nbsp;
                   <Button variant="contained" color="info" onClick={() => handleClose()} > Close </Button>
                 </Typography>
               </Box>
+              </form> */}
+              <EditBoat handleClose={handleClose} formData={formData} fishFarms={fishFarms} getData={getData}/>
           </Modal>
 
           <Modal
         open={openAdd}
-        onClose={handleAddClose}
+        onClose={handleAddBoatClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description">
+           <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
               Add New Boat
-          </Typography>
+          </Typography><hr/>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel>Boat name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter boat name" value={boatName} onChange={(e) => SetboatName(e.target.value) }></Input> </InputLabel>
+          <InputLabel style={labelStyle}>Boat name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter boat name"  {...register("boatName")}  onChange= {(e) => {setValue("boatName",e.target.value); trigger("boatName");} } ></Input></InputLabel><p style={paragraphStyle}>{errors.boatName?.message}</p>
+          
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-          <InputLabel>GPS position&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter GPS Position" value={gpsPosition} onChange={(e) => SetgpsPosition(e.target.value) }></Input> </InputLabel>
+          <InputLabel style={labelStyle}>GPS position&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter GPS Position" {...register("gpsPosition")} onChange={(e) => { setValue("gpsPosition",e.target.value); trigger("gpsPosition");}} ></Input> </InputLabel><p style={paragraphStyle}>{errors.gpsPosition?.message}</p>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-          <InputLabel>No of Cages&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="No of Cages" value={noOfCages} onChange={(e) => SetNoOfCages(e.target.value)} ></Input></InputLabel>
+          <InputLabel style={labelStyle}>No of Cages&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="No of Cages" {...register("noOfCages")} onChange={(e) => { setValue("noOfCages",e.target.value); trigger("noOfCages");}} ></Input></InputLabel><p style={paragraphStyle}>{errors.noOfCages?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
           
               <Box sx={{ maxWidth: 300 }}>
                   <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">-- Select a fish farm name --</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select"  onChange={(e) => handleFarmNameAdd(e)}>
+                  <InputLabel style={labelStyle}>-- Select a fish farm name --</InputLabel>
+                    <Select labelId="demo-simple-select-label" id="demo-simple-select" label="-- Select a fish farm name --" {...register("getFarmNameid")} 
+                      onChange={(e) => { setValue("getFarmNameid", e.target.value); trigger("getFarmNameid");}} 
+                     >
                     <MenuItem >--Select--</MenuItem>
                             { fishFarms.map((fishFarm) => {
                               return (
                                   <MenuItem key={fishFarm.farmId} value={fishFarm.farmId}>{fishFarm.farmName}</MenuItem>
                               )
                             })}
-                    </Select>
+                    </Select><p style={paragraphStyle}>{errors.getFarmNameid?.message}</p>
                   </FormControl>
-                </Box>
+                 </Box>
           </Typography>
           <br/>
           <Typography align="right"><hr/>
-          <Button variant="contained" color="primary" onClick={() => handleAdd()} >Add</Button>&nbsp;
-          <Button variant="contained" color="info" onClick={() => handleAddClose()} > Close </Button>
+          {/* <input type="submit"  onClick={() => handleAdd()} style={{ backgroundColor: 'cadetblue', color: 'white', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}></input>&nbsp; */}
+          {/* <Button type="submit"  variant="contained" color="info" onClick={(evt) => {evt.preventDefault(); handleSubmit()}} > Add </Button> */}
+          <Button type="submit"  variant="contained" color="info"  > Add </Button>&nbsp;
+          <Button variant="contained" color="info" onClick={() => handleAddBoatClose()} > Close </Button>
           </Typography>
         </Box>
+        </form>
       </Modal>
 
       </TableContainer><br/>
