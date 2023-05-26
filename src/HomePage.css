@@ -1,0 +1,58 @@
+
+.each-slide-effect > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 790px;
+}
+
+.each-slide-effect span {
+  padding: 20px;
+  font-size: 20px;
+  background: #0887f0;
+  text-align: center;
+}
+
+.home-page {
+  background-color: #00aeff;
+  padding: 0px;
+  text-align: center;
+  
+}
+.page-name {
+  font-size: 30px;
+}
+.p-tag {
+  font-size: 22px;
+}
+
+.banner {
+  background-color: #000000be;
+  color: #fff;
+  padding: 5px;
+  position: relative;
+}
+
+/* .each-slide-effect > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 75vh;
+}
+
+.each-slide-effect > div > div {
+  max-width: 100%;
+  max-height: 100%;
+} */
+
+
+/* .container {
+  background-image: url("bgImages/asd.jpg");
+  background-size: cover;
+} */

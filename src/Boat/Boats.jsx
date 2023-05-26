@@ -1,7 +1,5 @@
 import * as React from "react";
 import { useState, useEffect} from "react";
-
-//import { Link, useNavigate } from 'react-router-dom';
 //For Table
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -33,7 +31,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useForm} from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
-//import EditTest from "./BoatEditTest";
 import EditBoat from "./BoatEditForm";
 const schema = yup.object({
   boatName: yup.string().required('Boat name is required !'),
@@ -92,13 +89,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const BoatList = () => {
 
-  /*const navigate  = useNavigate();
-   
-  const handleClick = (boatId) => { ******************************<input type="submit" value=" Edit " onClick={() => handleUpdate()} style={{ backgroundColor: 'cadetblue', color: 'white', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}></input>&nbsp;***************************************
-   
-    navigate('/boatEditForm/:boatId'); 
-  };
-*/
   //set data using hooks
   const [data, setData] = useState([]);
 
@@ -119,19 +109,7 @@ const BoatList = () => {
   }
 //------------------------------------------------------------------end
   //Set variable for add new form
- //const [boatName, SetboatName] = useState('');
- //const [gpsPosition, SetgpsPosition] = useState('');
- //const [noOfCages, SetNoOfCages] = useState('');
  const [fishFarms, setFishFarms] = useState([]);
- // const [fishFarmsFarmId, SetFishFarmsFarmId] = useState('');
-
- //Set variable for edit/update new form
-//  const [editboatId, SetEditboatId] = useState('');
-//  const [editboatName, SetEditboatName] = useState('');
-//  const [editGpsPosition, SetEditGpsPosition] = useState('');
-//  const [editNoOfCages, SetEditNoOfCages] = useState('');
-//  const [editfishFarmsFarmId, editSetFishFarmsFarmId] = useState('');
-
   //For pop up edit
   const [openEdit, setOpenEdit] = useState(false);
   const handleOpenEdit = () => setOpenEdit(true);
@@ -151,7 +129,6 @@ const handleAddBoatClose = () => {
  
 
 //OnClickHandleEdit in form--------------------------GetbyId function-------------------------Start
-//onClick={() => handleEdit(item.boatId)}
 const handleEdit = (boatId) => {
   
   console.log(boatId);
@@ -170,48 +147,11 @@ const handleEdit = (boatId) => {
   axios.get(`https://localhost:7102/api/Boat/${boatId}`)
     .then((result) => {
       setFormData(result.data);
-      // SetEditboatId(boatId);
-      // SetEditboatName(result.data.boatName);
-      // SetEditGpsPosition(result.data.gpsPosition);
-      // SetEditNoOfCages(result.data.noOfCages);
-      // editSetFishFarmsFarmId(result.data.fishFarmsFarmId);
-
     })
     .catch((error) => {
       console.error(error);
     })
 }
-//-----------------------------------------------------------------------------------------End
-//firm farm dropdown Edit***********************************************************************************************
-/*const handleFarmNameEdit =(event) => {
-  const getFarmNameid = event.target.value;
-  console.log(getFarmNameid);
-  editSetFishFarmsFarmId(getFarmNameid);
-}*/
-//OnClickHandleEdit in popup --------------------------------Put fuction-------------------Start
-/*const handleUpdate = () =>{
-    const url = `https://localhost:7102/api/Boat?id=${editboatId}`;
-    const data = {
-      "boatId" : editboatId,
-      "boatName": editboatName,
-      "gpsPosition": editGpsPosition,
-      "noOfCages": editNoOfCages,
-      "fishFarmsFarmId" : editfishFarmsFarmId
-    }
-    axios.put(url, data)
-    .then((result) => {
-      handleClose();
-      getData();
-      clear();
-      toast.success('Boat record has been updated');
-      handleAddClose();
-    })
-    .catch((error) => {
-      toast.error(error);
-    })
-}*/
-
-
 //----------------------------------------------------------------------------------------End
 
 //onClickHanleDelete----------------Delete function-------------------------start 
@@ -227,6 +167,12 @@ const handleDelete = (boatId) =>{
       }
     })
     .catch((error) => {
+      if (error.response && error.response.status === 500) {
+        toast.warning('The boat cannot be deleted !');
+        getData();
+      } else {
+        toast.error('An error occurred while deleting the boat.');
+      }
       toast.error(error);
     })
   }
@@ -257,34 +203,7 @@ const { register, handleSubmit, formState:{ errors },trigger, reset, setValue } 
   }
   
 });
-/*const handleValidation = async (event) => {
-  await trigger(event.target.value); // Trigger validation for the field with the given name
-  
-};*/
 
-
-//Add new fish farm handlers ***********************************************************************************************
-// const handleFarmNameAdd =(event) => {
-//   //trigger("getFarmNameid");
-//   const getFarmNameid = event.target.value;
-//   console.log(getFarmNameid);
-//   SetFishFarmsFarmId(getFarmNameid);
-// }
-/*const handleBoatName = (event) => {
-  const getBoatNmae = event.target.value;
-  console.log(getBoatNmae);
-  SetboatName(getBoatNmae);
-}
-const handleBoatGpsPosi = (event) => {
-  const getGpsPosi = event.target.value;
-  console.log(getGpsPosi);
-  SetgpsPosition(getGpsPosi);
-} 
-const handleBoatNoOfCages = (event) => {
-  const getNoOfCages = event.target.value;
-  console.log(getNoOfCages);
-  SetNoOfCages(getNoOfCages);
-} */
 //onClickHanleAdd new boat in popup---------------post function---------------------------start
 const onSubmit = (formValues) => {
     const url = 'https://localhost:7102/api/Boat'
@@ -307,19 +226,7 @@ const onSubmit = (formValues) => {
 }
 
 const clear = () => {
-  //SetboatName('');
-  //SetgpsPosition('');
-  //SetNoOfCages('');
-  //SetFishFarmsFarmId('');
-  // SetEditboatId('')
-  // SetEditboatName('')
-  // SetEditGpsPosition('')
-  // SetEditNoOfCages('');
-  // SetEditNoOfCages('');
-  
-
 }
-
 //------------------------------------------------------------------end 
 
 
@@ -368,58 +275,11 @@ const clear = () => {
           </TableBody>
         </Table>
               
-          <Modal
-            open={openEdit}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description">
-             {/* <form onSubmit={handleSubmit(onSubmit)}>
-              <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
-                  Edit Boat
-                </Typography><hr/>
-                <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-                    <InputLabel>Boat name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Edit boat name" value={editboatName} onChange={(e) => SetEditboatName(e.target.value)}></Input> </InputLabel>
-                </Typography>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <InputLabel>GPS position&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="Edit GPS position" value={editGpsPosition} onChange={(e) => SetEditGpsPosition(e.target.value)}></Input> </InputLabel>
-                </Typography>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                    <InputLabel>No of Cages&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="Edit No of Cages " value={editNoOfCages} onChange={(e) => SetEditNoOfCages(e.target.value)}> </Input></InputLabel>
-                </Typography>
-                <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Famrm ID&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Working farm name" value={editfishFarmsFarmId} onChange={(e) => editSetFishFarmsFarmId(e.target.value) } disabled></Input> </InputLabel>
-             <br/> 
-              <Box sx={{ maxWidth: 350 }}>
-                  <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">-- Select Fish Farm Name --:</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select" label="-- Select a fish farm name --"  value={editfishFarmsFarmId} onChange={(e) => handleFarmNameEdit(e)} >
-                            <MenuItem >--Select--</MenuItem>
-                            { fishFarms.map((fishFarm) => {
-                              return (
-                                  <MenuItem key={fishFarm.farmId} value={fishFarm.farmId}>{fishFarm.farmName}</MenuItem>
-                              )
-                            })}
-                    </Select>
-                  </FormControl>
-                </Box>
-          </Typography>
-                <br/>
-                <Typography align="right"><hr/>
-                
-                  <Button variant="contained" color="primary" onClick={() => handleUpdate()} >Edit</Button>&nbsp;
-                  <Button variant="contained" color="info" onClick={() => handleClose()} > Close </Button>
-                </Typography>
-              </Box>
-              </form> */}
+          <Modal open={openEdit} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description"> 
               <EditBoat handleClose={handleClose} formData={formData} fishFarms={fishFarms} getData={getData}/>
           </Modal>
 
-          <Modal
-        open={openAdd}
-        onClose={handleAddBoatClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description">
+          <Modal open={openAdd} onClose={handleAddBoatClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
            <form onSubmit={handleSubmit(onSubmit)}>
         <Box sx={style}>
           <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
@@ -455,8 +315,6 @@ const clear = () => {
           </Typography>
           <br/>
           <Typography align="right"><hr/>
-          {/* <input type="submit"  onClick={() => handleAdd()} style={{ backgroundColor: 'cadetblue', color: 'white', padding: '10px', borderRadius: '8px', cursor: 'pointer' }}></input>&nbsp; */}
-          {/* <Button type="submit"  variant="contained" color="info" onClick={(evt) => {evt.preventDefault(); handleSubmit()}} > Add </Button> */}
           <Button type="submit"  variant="contained" color="info"  > Add </Button>&nbsp;
           <Button variant="contained" color="info" onClick={() => handleAddBoatClose()} > Close </Button>
           </Typography>

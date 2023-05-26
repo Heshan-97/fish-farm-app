@@ -8,7 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableCell, { tableCellClasses } from '@mui/material/TableCell';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import {Typography, Button, Container,Input,Checkbox,InputLabel,FormControl} from "@mui/material";
+import {Typography, Button, Container,Input,InputLabel,FormControl} from "@mui/material";
 import { styled } from '@mui/material/styles';
 
 //for the model
@@ -29,7 +29,7 @@ import * as yup from "yup";
 import EditFishFarm from "./FishFarmEdit";
 const schema = yup.object({
   farmName: yup.string().required('Fish farm name is required !'),
-  selectedFile: yup.string('Image must be uploaded !').typeError('Image must be uploaded 1!').required('Image must be uploaded 2!'),
+  selectedFile: yup.string('Image must be uploaded !').typeError('Image must be uploaded !').required('Image is required !'),
   /*bargeAvailability: yup.number('Something went Wrong !').min(0, 'Something went Wrong !').integer('Something went Wrong !').typeError('Something went Wrong !').required('Something went Wrong !!'), */
 });
 
@@ -93,7 +93,19 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
   },
 }));
 
-
+//Css for checkbox
+const checkboxStyle = {
+  display: 'inline-block',
+  width: '20px',
+  height: '20px',
+  borderRadius: '3px',
+  backgroundColor: 'blue',
+  border: 'none',
+  marginRight: '5px',
+  verticalAlign: 'middle',
+  position: 'relative',
+  cursor: 'pointer',
+};
 
 const FarmList = () => {
   
@@ -113,17 +125,9 @@ const FarmList = () => {
   }
 //------------------------------------------------------------------end
   //Set variable for add new form
-//  const [farmName, SetfarmName] = useState('');
-//  const [farmPictureUrl, SetfarmPictureUrl] = useState('');
  const [bargeAvailability, SetbargeAvailability] = useState(false);
  const [selectedFile, setSelectedFile] = useState(null);
  const [workersNameList, setWorkersNameList] = useState([]);
-
- //Set variable for edit/update new form
-//  const [editfarmId, SetEditfarmId] = useState('');
-//  const [editfarmName, SetEditfarmName] = useState('');
-//  const [editfarmPictureUrl, SetEditfarmPictureUrl] = useState('');
-//  const [editbargeAvailability, SetEditbargeAvailability] = useState(false);
 
   //For pop up edit
   const [openEdit, setOpenEdit] = useState(false);
@@ -158,68 +162,40 @@ const handleEdit = (farmId) => {
   axios.get(`https://localhost:7102/api/FishFarm/${farmId}`)
     .then((result) => {
       setFormData(result.data)
-      // SetEditfarmId(farmId);
-      // SetEditfarmName(result.data.farmName);
-      // SetEditfarmPictureUrl(result.data.farmPictureUrl);
-      // SetEditbargeAvailability(result.data.bargeAvailability);
     })
     .catch((error) => {
       console.error(error);
     })
 }
-//-----------------------------------------------------------------------------------------End
-
-//OnClickHandleEdit in popup --------------------------------Put fuction-------------------Start
-// const handleUpdate = (farmId) =>{
-//     const url = `https://localhost:7102/api/FishFarm?id=${editfarmId}`;
-//     const data = {
-//       "farmId" : editfarmId,
-//       "farmName": editfarmName,
-//       "farmPictureUrl": editfarmPictureUrl,
-//       "bargeAvailability": editbargeAvailability,
-//     }
-//     axios.put(url, data)
-//     .then((result) => {
-//       handleClose();
-//       getData();
-//       clear();
-//       toast.success('Fish farm has been updated');
-//       handleAddClose();
-//     })
-//     .catch((error) => {
-//       toast.error(error);
-//     })
-// }
-/*const handleEditBargeChange = (e) => {
-  if(e.target.checked)
-  {
-    SetbargeAvailability(true);
-  }
-  else
-  {
-    SetbargeAvailability(false);
-  }
-}*/
-/*const handleEditBargeChange = (e) => {
-  console.log("handleEditBargeChange", e.target.checked);
-  SetEditbargeAvailability(e.target.checked);
-};*/
-//----------------------------------------------------------------------------------------End
 
 //onClickHanleDelete----------------Delete function-------------------------start 
 const handleDelete = (farmId) =>{
+
   if(window.confirm("Are you sure to delete this fish farm!") === true)
   {
+    
     axios.delete(`https://localhost:7102/api/FishFarm?id=${farmId}`)
     .then((result) => {
-      if(result.status === 200)
+      if(result.status === 500)
       {
-        toast.success('Fish farm has been deleted');
+        toast.success('The fish farm cannot be deleted as it relies on both its workers and boats');
         getData();
       }
+      if(result.status === 200)
+      {
+        toast.success('Fish farm has been deleted !');
+        getData();
+      }
+      
     })
     .catch((error) => {
-      toast.error(error);
+      if (error.response && error.response.status === 500) {
+        toast.warning('The fish farm cannot be deleted as it relies on both its workers and boats');
+        getData();
+      } else {
+        toast.error('An error occurred while deleting the fish farm.');
+      }
+      toast.error(error,"Error!");
     })
   }
 }
@@ -251,10 +227,8 @@ const { register, handleSubmit, formState:{ errors },trigger, reset, setValue } 
 const onSubmit = (formValues) => {
   console.log(formValues.farmName);
   console.log(selectedFile);
-  console.log(bargeAvailability);
- // if(farmName && selectedFile && bargeAvailability !== null){
   
-    const url = 'https://localhost:7102/api/FishFarm/SaveImage'
+    const url = 'https://localhost:7102/api/FishFarm/AddFishFarm'
     var sd =new FormData()
     sd.append('ImageFile', selectedFile)
     sd.append('farmName', formValues.farmName)
@@ -269,20 +243,10 @@ const onSubmit = (formValues) => {
     .catch((error) => {
       toast.error(error);
     })
- // }
- // else{
-  //  toast.warning('Please check Fishfarm input fields !');
-  //}
 }
 
 const clear = () => {
-  // SetfarmName('');
-  // SetfarmPictureUrl('');
   SetbargeAvailability(false);
-  // SetEditfarmId('')
-  // SetEditfarmName('')
-  // SetEditfarmPictureUrl('')
-  // SetEditbargeAvailability(false);
   setSelectedFile('')
   reset();
 }
@@ -301,20 +265,17 @@ const handleBargeChange = (e) => {
 const handleViewWorkers = (farmId) => {
 
   handleOpenWorkersView();
-//useEffect(() => {    //get farmlist from farm table
 const getworkersName =() => {
   axios.get('https://localhost:7102/api/Workers')
     .then((response) => {
       const filteredWorkers = response.data.filter(worker => worker.fishFarmsFarmId === farmId);
       setWorkersNameList(filteredWorkers);
-      //toast.success('Farm name list has been loaded');
     })
     .catch((error) => {
       console.log(error);
     })
   }
   getworkersName();
-//}, []);
 }
 
 //------------- View Boats Button--------------------
@@ -325,7 +286,6 @@ const handleViewBoats = (farmId) => {
       .then((response) => {
         const filteredBoat = response.data.filter(Boat => Boat.fishFarmsFarmId === farmId);
         setWorkersNameList(filteredBoat);
-        //toast.success('Farm name list has been loaded');
       })
       .catch((error) => {
         console.log(error);
@@ -385,31 +345,14 @@ const handleViewBoats = (farmId) => {
               }
           </TableBody>
         </Table>
-              
+
+           {/* Modal For Edit Fish Farm    */}
           <Modal  open={openEdit} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
-              {/* <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
-                  Edit fish farm
-                </Typography><hr/>
-                <Typography id="modal-modal-text" sx={{ mt: 2}}>
-                <InputLabel>Fish farm name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Edit fish farm name" value={editfarmName} onChange={(e) => SetEditfarmName(e.target.value)}/></InputLabel> 
-                </Typography>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                <InputLabel>Farm picture URL:&nbsp;<Input type="text" className="form-control" placeholder="Edit farm picture URL" value={editfarmPictureUrl} onChange={(e) => SetEditfarmPictureUrl(e.target.value)}/></InputLabel> 
-                </Typography>
-                <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-                  <InputLabel>Barge Availability&nbsp;:<Checkbox type="checkbox" className="form-control" placeholder="Tick barge availability" checked={editbargeAvailability} onChange={(e) => handleEditBargeChange(e)} /> </InputLabel>
-                </Typography><br/>
-                <Typography align="right"><hr/>
-                  <Button variant="contained" color="primary" onClick={() => handleUpdate()} >Edit</Button>&nbsp;
-                  <Button variant="contained" color="info" onClick={() => handleClose()} > Close </Button>
-                </Typography>
-              </Box> */}
               <EditFishFarm handleClose={handleClose} formData={formData}  getData={getData}/>
           </Modal>
 
 
-
+           {/* Modal For Add Fish Farm    */}     
           <Modal open={openAdd} onClose={handleAddBoatClose}  aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
           <form onSubmit={handleSubmit(onSubmit)}>
           <Box sx={style}>
@@ -430,7 +373,7 @@ const handleViewBoats = (farmId) => {
           </Box> 
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-            <InputLabel style={labelStyle} >Barge Availability&nbsp;&nbsp;:<Checkbox type="checkbox" className="form-control" placeholder="Tick barge availability" checked={bargeAvailability}   onChange={(e) =>{handleBargeChange(e);}} /></InputLabel>
+            <InputLabel style={labelStyle} >Barge Availability&nbsp;&nbsp;:&nbsp;&nbsp;<Input type="checkbox" style={checkboxStyle} className="form-control" placeholder="Tick barge availability" checked={bargeAvailability}   onChange={(e) =>{handleBargeChange(e);}} /></InputLabel>
           </Typography><br/>
           <Typography align="right"><hr/>
           <Button type="submit"  variant="contained" color="info"  > Add </Button>&nbsp;
@@ -441,7 +384,7 @@ const handleViewBoats = (farmId) => {
       </Modal>
 
       
-         
+         {/* Modal For View Fish Farm worker details*/}
       <Modal open={openWorkersView} onClose={handleViewClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <Box sx={styleView}>
         <TableContainer component={Paper}>
@@ -478,6 +421,7 @@ const handleViewBoats = (farmId) => {
         </Box>
       </Modal>
 
+        {/* Modal For View Fish Farm Boat details    */}          
       <Modal open={openBoatView} onClose={handleViewBoatClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
         <Box sx={styleView}>
         <TableContainer component={Paper}>

@@ -98,7 +98,6 @@ const EditBoat = ({formData,fishFarms,handleClose,getData}) => {
       toast.error(error);
     })
     console.log(data);
-    // Close the modal
     handleClose();
   };
 
@@ -152,16 +151,7 @@ const EditBoat = ({formData,fishFarms,handleClose,getData}) => {
           </InputLabel><p style={paragraphStyle}>{errors.editNoOfCages?.message}</p>
         </Typography>
         <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          {/* <InputLabel>
-            Famrm ID&nbsp;&nbsp;&nbsp;&nbsp;:
-            <Input
-              type="text"
-              className="form-control"
-              placeholder="Enter Working farm name"
-              {...register("editfishFarmsFarmId")}
-              onChange={(e) => { setValue("editfishFarmsFarmId", e.target.value); trigger("editfishFarmsFarmId");}}
-              disabled></Input>{" "}
-          </InputLabel> */}
+          
           <br />
           <Box sx={{ maxWidth: 350 }}>
             <FormControl fullWidth>

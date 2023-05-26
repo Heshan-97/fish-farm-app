@@ -10,13 +10,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import {
-  Typography,
-  Button,
-  Container,
-  Input,
-  InputLabel,
-} from "@mui/material";
+import { Typography, Button,Container,Input,InputLabel} from "@mui/material";
 
 //for the model
 import Box from '@mui/material/Box';
@@ -53,20 +47,6 @@ const schema = yup.object({
   getFarmNameid: yup.string().required('Select a fish farm name !'),
 });
 
-/*const formSchema = z.object({
-  pictureUrl: z.string(),
-  age: z.string(),
-  firstName: z.string(),
-  middleName: z.string(),
-  lastName: z.string(),
-  email: z.string(),
-  certifiedDatePeriod: z.string() ,
-  crewRole: z.string(),
-  workerPosition: z.string(),
-  fishFarmsFarmId: z.string(),
-});*/
-
-  
 //For model pop up
 const style = {
   position: 'absolute',
@@ -74,12 +54,12 @@ const style = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: 600,
+  maxHeight: '80vh', 
   bgcolor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,
-  overflow: 'scroll',  /* Enable scrolling */
-  height: 700
+  overflow: 'auto',
 };
 
 //For Table css
@@ -116,10 +96,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const WorkerList = () => {
 
- //------------------------------------validation ------------------------
-
-
-
   //set data using hooks
   const [data, setData] = useState([]);
 
@@ -140,32 +116,8 @@ const WorkerList = () => {
   }
 //------------------------------------------------------------------end
   //Set variable for add new form
-
-//  const [pictureUrl, SetpictureUrl] = useState('');
-//  const [age, Setage] = useState('');
-//  const [firstName, SetfirstName] = useState('');
-//  const [middleName, SetmiddleName] = useState('');
-//  const [lastName, SetlastName] = useState('');
-//  const [email, Setemail] = useState('');
-//  const [certifiedDatePeriod1, SetcertifiedDatePeriod1] = useState('');
-//  const [crewRole, SetcrewRole] = useState('');
-//  const [workerPosition, SetworkerPosition] = useState('');
  const [fishFarms, setFishFarms] = useState([]);
  const [selectedFile, setSelectedFile] = useState(null);
-  // const [fishFarmsFarmId, SetFishFarmsFarmId] = useState('');
- 
- //Set variable for edit/update new form
- const [editworkerId, SetEditworkerId] = useState('');
- const [editpictureUrl, SetEditpictureUrl] = useState('');
- const [editage, SetEditage] = useState('');
- const [editfirstName, SetEditfirstName] = useState('');
- const [editmiddleName, SetEditmiddleName] = useState('');
- const [editlastName, SetEditlastName] = useState('');
- const [editemail, SetEditemail] = useState('');
- const [editcertifiedDatePeriod1, SetEditcertifiedDatePeriod1] = useState('');
- const [editcrewRole, SetEditcrewRole] = useState('');
- const [editworkerPosition, SetEditworkerPosition] = useState('');
- const [editfishFarmsFarmId, editSetFishFarmsFarmId] = useState('');
 
   //For pop up edit
   const [openEdit, setOpenEdit] = useState(false);
@@ -187,83 +139,26 @@ const WorkerList = () => {
  
 
 //OnClickHandleEdit in form--------------------------GetbyId function-------------------------Start
-
-
 const handleEdit = (workerId) => {
-  //useEffect(() => {    //get farmlist from farm table
   const getFarmName =() => {
     axios.get('https://localhost:7102/api/FishFarm')
       .then((response) => {
         setFishFarms(response.data);
-        //toast.success('Farm name list has been loaded');
       })
       .catch((error) => {
         console.log(error);
       })
     }
     getFarmName();
-  //}, []); 
   handleOpenEdit(workerId);
   axios.get(`https://localhost:7102/api/Workers/${workerId}`)
     .then((result) => {
         setFormData(result.data);
-        SetEditworkerId(workerId);
-        SetEditpictureUrl(result.data.pictureUrl);
-        SetEditage(result.data.age);
-        SetEditfirstName(result.data.firstName);
-        SetEditmiddleName(result.data.middleName);
-        SetEditlastName(result.data.lastName);
-        SetEditemail(result.data.email);
-        SetEditcertifiedDatePeriod1(result.data.certifiedDatePeriod);
-        SetEditcrewRole(result.data.crewRole);
-        SetEditworkerPosition(result.data.workerPosition);
-        editSetFishFarmsFarmId(result.data.fishFarmsFarmId);
-      
     })
     .catch((error) => {
       console.error(error);
     })
 }
-//-----------------------------------------------------------------------------------------End
-//firm farm dropdown Edit***********************************************************************************************
-// const handleFarmNameEdit =(event) => {
-//   const getFarmNameid = event.target.value;
-//   console.log(getFarmNameid);
-//   editSetFishFarmsFarmId(getFarmNameid);
-// }
-
-//OnClickHandleEdit in popup --------------------------------Put fuction-------------------Start
-const handleUpdate = (workerId) =>{
-  
-    const url = `https://localhost:7102/api/Workers/dto?idd=${editworkerId}`;
-    const data = {
-        "workerId": editworkerId,
-        "pictureUrl": editpictureUrl,
-        "age": editage,
-        "firstName": editfirstName,
-        "middleName": editmiddleName,
-        "lastName": editlastName,
-        "email": editemail,
-        "certifiedDatePeriod": editcertifiedDatePeriod1,
-        "crewRole": editcrewRole,
-        "workerPosition": editworkerPosition,
-        "fishFarmsFarmId": editfishFarmsFarmId
-
-    }
-    axios.put(url, data)
-    .then((result) => {
-      handleClose();
-      getData();
-      clear();
-      toast.success('Worker has been updated');
-      handleAddClose();
-    })
-    .catch((error) => {
-      toast.error(error);
-    })
-}
-
-
 //----------------------------------------------------------------------------------------End
 
 //onClickHanleDelete----------------Delete function-------------------------start 
@@ -279,6 +174,12 @@ const handleDelete = (workerId) =>{
       }
     })
     .catch((error) => {
+      if (error.response && error.response.status === 500) {
+        toast.warning('The workers cannot be deleted !');
+        getData();
+      } else {
+        toast.error('An error occurred while deleting the worker.');
+      }
       toast.error(error);
     })
   }
@@ -287,32 +188,22 @@ const handleDelete = (workerId) =>{
 
 //onClickHanleAdd new Worker in from
 const handleAddForm = () => {
-  //useEffect(() => {    //get farmlist from farm table
     const getFarmName =() => {
     axios.get('https://localhost:7102/api/FishFarm')
       .then((response) => {
         setFishFarms(response.data) ;
-        //toast.success('Farm name has been loaded');
       })
       .catch((error) => {
         console.log(error);
       })
     }
     getFarmName();
-  //}, []); 
   handleOpenAdd();
 }
 
-//firm farm dropdown Add***********************************************************************************************
-// const handleFarmNameAdd =(event) => {
-//   const getFarmNameid = event.target.value;
-//   console.log(getFarmNameid);
-//   SetFishFarmsFarmId(getFarmNameid);
-// }
 const { register, handleSubmit, formState:{ errors },trigger, reset, setValue } = useForm({
   resolver: yupResolver(schema),
   defaultValues:{
-    //  pictureUrl: "",
     selectedFile: "",
     age: "",
     firstName: "",
@@ -324,21 +215,18 @@ const { register, handleSubmit, formState:{ errors },trigger, reset, setValue } 
     workerPosition: "",
     fishFarmsFarmId: "",
   }
-  
 });
 
 
 //onClickHanleAdd new Worker in popup---------------post function---------------------------start
 
 const handleUploadImg = (event) => {
- 
   const file = event.target.files[0];
   setSelectedFile(file);
-  
 }
 const onSubmit = (formValues) => {
   console.log("hello");
-  console.log(//formValues.pictureUrl,
+  console.log(
               selectedFile,
               formValues.age,
               formValues.firstName,
@@ -350,7 +238,7 @@ const onSubmit = (formValues) => {
               formValues.workerPosition,
               formValues.getFarmNameid    
     );
-    const url = 'https://localhost:7102/api/Workers/SaveImage'
+    const url = 'https://localhost:7102/api/Workers/AddWorker'
     var sd =new FormData()
     sd.append('age', formValues.age)
     sd.append('firstName', formValues.firstName)
@@ -362,21 +250,7 @@ const onSubmit = (formValues) => {
     sd.append('workerPosition', formValues.workerPosition)
     sd.append('fishFarmsFarmId', formValues.getFarmNameid)
     sd.append('ImageFile', selectedFile)
-   /* const data = {
-        //"pictureUrl": formValues.pictureUrl,
-        "age": formValues.age,
-        "firstName": formValues.firstName,
-        "middleName": formValues.middleName,
-        "lastName": formValues.lastName,
-        "email": formValues.email,
-        "certifiedDatePeriod": formValues.certifiedDatePeriod1,
-        "crewRole": formValues.crewRole,
-        "workerPosition": formValues.workerPosition,
-        "fishFarmsFarmId": formValues.getFarmNameid,
-        "ImageFile": selectedFile
-        
-    }*/
-    
+ 
     axios.post(url, sd)
     .then((result) => {
       getData();
@@ -391,37 +265,10 @@ const onSubmit = (formValues) => {
     })
 }
 const clear = () => {
-    // SetpictureUrl('');
-    // Setage('');
-    // SetfirstName('');
-    // SetmiddleName('')
-    // SetlastName('')
-    // Setemail('')
-    // SetcertifiedDatePeriod1('');
-    // SetcrewRole('');
-    // SetworkerPosition('');
-    // SetFishFarmsFarmId('');
-    //setFishFarms();
-
-
-    SetEditworkerId('');
-    SetEditpictureUrl('');
-    SetEditage('');
-    SetEditfirstName('');
-    SetEditmiddleName('');
-    SetEditlastName('');
-    SetEditemail('');
-    SetEditcertifiedDatePeriod1('');
-    SetEditcrewRole('');
-    SetEditworkerPosition('');
-    SetEditworkerPosition('');
-
 }
-
 //------------------------------------------------------------------end 
 
 
-//onSubmit={handleSubmit(onFormSubmit)}
   return (
     
     <Container maxWidth={true} className="my-container"  >
@@ -485,91 +332,15 @@ const clear = () => {
               }
           </TableBody>
         </Table>
-              
-          <Modal
-            open={openEdit}
-            onClose={handleClose}
-            aria-labelledby="modal-modal-title"
-            aria-describedby="modal-modal-description">
-              {/* <Box sx={style}>
-                <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
-                  Edit Worker
-                </Typography>
-                
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Workers Picture URL&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Workers Picture URL" value={editpictureUrl} onChange={(e) => SetEditpictureUrl(e.target.value) }/> </InputLabel>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Worker Age&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="number" className="form-control" placeholder="Enter Worker Age" value={editage} onChange={(e) => SetEditage(e.target.value) }/> </InputLabel>
-          </Typography>
-          <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-              <InputLabel>Worker First Name&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Worker First Name" value={editfirstName} onChange={(e) => SetEditfirstName(e.target.value) }></Input></InputLabel>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Worker Middle Name&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Worker Middle Name" value={editmiddleName} onChange={(e) => SetEditmiddleName(e.target.value) }></Input> </InputLabel>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Worker Last Name&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Worker Last Name" value={editlastName} onChange={(e) => SetEditlastName(e.target.value) }></Input> </InputLabel>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Worker Email&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="email" className="form-control" placeholder="Enter Worker Email" value={editemail} onChange={(e) => SetEditemail(e.target.value) }></Input> </InputLabel>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Select new certified date&nbsp;:
-              <Input type="text"  className="form-control" value={editcertifiedDatePeriod1} onChange={(e) =>  SetEditcertifiedDatePeriod1(e.target.value) } disabled></Input>
-              <Input type="date" className="form-control"  value={editcertifiedDatePeriod1} onChange={(e) =>  SetEditcertifiedDatePeriod1(e.target.value) }></Input></InputLabel>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-             
-              <Box sx={{ maxWidth: 300 }}>
-                  <FormControl fullWidth>
-                    <InputLabel id="demo-simple-select-label">-- Select Crew Role --</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select" value={editcrewRole} onChange={(e) => SetEditcrewRole(e.target.value)}>
-                          <MenuItem >--Select--</MenuItem>
-                          <MenuItem value={'CEO'}>CEO</MenuItem>
-                          <MenuItem value={'Worker'}>Worker</MenuItem>
-                          <MenuItem value={'Captain'}>Captain</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Box>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Working Position&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Working Position" value={editworkerPosition} onChange={(e) => SetEditworkerPosition(e.target.value) }></Input> </InputLabel>
-          </Typography>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-              <InputLabel>Famrm ID&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Working farm name" value={editfishFarmsFarmId} onChange={(e) => editSetFishFarmsFarmId(e.target.value) } disabled></Input> </InputLabel>
-             <br/> 
-              <Box sx={{ maxWidth: 350 }}>
-                  <FormControl fullWidth>
-                  <InputLabel id="demo-simple-select-label">-- Select Fish Farm Name --:</InputLabel>
-                    <Select labelId="demo-simple-select-label" id="demo-simple-select"  value={editfishFarmsFarmId} onChange={(e) => handleFarmNameEdit(e)} >
-                            <MenuItem >--Select--</MenuItem>
-                            { fishFarms.map((fishFarm) => {
-                              return (
-                                  <MenuItem key={fishFarm.farmId} value={fishFarm.farmId}>{fishFarm.farmName}</MenuItem>
-                              )
-                            })}
-                    </Select>
-                  </FormControl>
-                </Box>
-          </Typography>
-                <br/>
-                <Typography align="right"><hr/>
-                  <Button variant="contained" color="primary" onClick={() => handleUpdate()} >Edit</Button>&nbsp;
-                  <Button variant="contained" color="info" onClick={() => handleClose()} > Close </Button>
-                </Typography>
-              </Box> */}
+              {/* Modal For Edit Workers */}
+          <Modal open={openEdit} onClose={handleClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description">
               <EditWorker handleClose={handleClose} fishFarms={fishFarms} getData={getData} formData={formData}/>
           </Modal>
 
-          <Modal
-        open={openAdd}
-        onClose={handleAddBoatClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-        >
+              {/* Modal For Add Workers */}
+          <Modal open={openAdd} onClose={handleAddBoatClose} aria-labelledby="modal-modal-title" aria-describedby="modal-modal-description" >
           <form onSubmit={handleSubmit(onSubmit)}>
-        <Box sx={style} >
+          <Box sx={style} >
           <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
               Add new Worker
           </Typography><hr/>
@@ -578,7 +349,7 @@ const clear = () => {
           <Typography id="modal-modal-description" sx={{ mt: 2 }}> 
           <Box sx={{ maxWidth: 300 }}>
               <FormControl fullWidth>
-              <InputLabel style={labelStyle} >Select Worker Image&nbsp;:&nbsp;</InputLabel> <br/><br/>
+              <InputLabel style={labelStyle} >Select Worker Picture&nbsp;:&nbsp;</InputLabel> <br/><br/>
                 <Input type="file" className="form-control" {...register("selectedFile")}  onChange={(e) =>{handleUploadImg(e); trigger("selectedFile"); }}></Input>
             </FormControl><p style={paragraphStyle}>{errors.selectedFile?.message}</p>
           </Box> 
