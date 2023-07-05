@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useState, useEffect} from "react";
+import '../Main.css';
 //For Table
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -40,7 +41,8 @@ const schema = yup.object({
 });
 
 
-//css for error message
+
+/*css for error message
 const paragraphStyle = {
   color: "red"
 };
@@ -50,7 +52,7 @@ const labelStyle = {
   fontSize: "16px",
   fontWeight: "bold",
   color: "black"
-};
+};*/
 
 //For model pop up
 const style = {
@@ -233,12 +235,12 @@ const clear = () => {
 
   return (
     
-    <Container>
+    <Container maxWidth={true}>
       <ToastContainer/>
       <TableContainer component={Paper}>
         <Typography variant="h4"><br/>&nbsp;&nbsp;Boats</Typography>
         <Typography align="right"><Button variant="contained" color="primary" onClick={() => handleAddForm()} > + Add new boat</Button>&nbsp;&nbsp;</Typography><hr/>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table sx={{ maxWidth: 2000 }} aria-label="simple table">
           <TableHead>
             <StyledTableRow>
               <StyledTableCell>#</StyledTableCell>
@@ -285,21 +287,21 @@ const clear = () => {
           <Typography id="modal-modal-title" variant="h6" component="h2" align="center" fontFamily={"inherit"}>
               Add New Boat
           </Typography><hr/>
-          <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-          <InputLabel style={labelStyle}>Boat name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter boat name"  {...register("boatName")}  onChange= {(e) => {setValue("boatName",e.target.value); trigger("boatName");} } ></Input></InputLabel><p style={paragraphStyle}>{errors.boatName?.message}</p>
+          <Typography id="modal-modal-text" sx={{ mt: 2 }} >
+          <InputLabel className="labelStyle">Boat name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter boat name"  {...register("boatName")}  onChange= {(e) => {setValue("boatName",e.target.value); trigger("boatName");} } ></Input></InputLabel><p className="paragraphStyle">{errors.boatName?.message}</p>
           
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-          <InputLabel style={labelStyle}>GPS position&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter GPS Position" {...register("gpsPosition")} onChange={(e) => { setValue("gpsPosition",e.target.value); trigger("gpsPosition");}} ></Input> </InputLabel><p style={paragraphStyle}>{errors.gpsPosition?.message}</p>
+          <InputLabel className="labelStyle">GPS position&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="text" className="form-control" placeholder="Enter GPS Position" {...register("gpsPosition")} onChange={(e) => { setValue("gpsPosition",e.target.value); trigger("gpsPosition");}} ></Input> </InputLabel><p className="paragraphStyle">{errors.gpsPosition?.message}</p>
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
-          <InputLabel style={labelStyle}>No of Cages&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="No of Cages" {...register("noOfCages")} onChange={(e) => { setValue("noOfCages",e.target.value); trigger("noOfCages");}} ></Input></InputLabel><p style={paragraphStyle}>{errors.noOfCages?.message}</p>
+          <InputLabel className="labelStyle">No of Cages&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;<Input type="number" className="form-control" placeholder="No of Cages" {...register("noOfCages")} onChange={(e) => { setValue("noOfCages",e.target.value); trigger("noOfCages");}} ></Input></InputLabel><p className="paragraphStyle">{errors.noOfCages?.message}</p>
           </Typography>
           <Typography id="modal-modal-text" sx={{ mt: 2 }}>
           
               <Box sx={{ maxWidth: 300 }}>
                   <FormControl fullWidth>
-                  <InputLabel style={labelStyle}>-- Select a fish farm name --</InputLabel>
+                  <InputLabel className="labelStyle">-- Select a fish farm name --</InputLabel>
                     <Select labelId="demo-simple-select-label" id="demo-simple-select" label="-- Select a fish farm name --" {...register("getFarmNameid")} 
                       onChange={(e) => { setValue("getFarmNameid", e.target.value); trigger("getFarmNameid");}} 
                      >
@@ -309,7 +311,7 @@ const clear = () => {
                                   <MenuItem key={fishFarm.farmId} value={fishFarm.farmId}>{fishFarm.farmName}</MenuItem>
                               )
                             })}
-                    </Select><p style={paragraphStyle}>{errors.getFarmNameid?.message}</p>
+                    </Select><p className="paragraphStyle">{errors.getFarmNameid?.message}</p>
                   </FormControl>
                  </Box>
           </Typography>

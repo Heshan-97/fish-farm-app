@@ -1,0 +1,13 @@
+/*css for error message */
+.paragraphStyle  {
+  color:  #ff0000; 
+};
+
+/*css for input Lable*/
+.labelStyle {
+  font-family: Arial;
+  font-size: 16px;
+  font-weight: bold;
+  color: rgb(0, 0, 0);
+}
+

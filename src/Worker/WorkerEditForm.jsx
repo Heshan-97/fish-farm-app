@@ -133,7 +133,7 @@ const EditWorker = ({handleClose,formData,fishFarms,getData}) => {
         </Typography><hr/>
         
   <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-      <InputLabel style={labelStyle}>Workers Picture URL&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Workers Picture URL"  {...register("editpictureUrl")} onChange={(e) => {setValue("editpictureUrl",e.target.value); trigger("editpictureUrl");} }/> </InputLabel><p style={paragraphStyle}>{errors.editpictureUrl?.message}</p>
+      <InputLabel style={labelStyle}>Workers Picture URL&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Workers Picture URL"  {...register("editpictureUrl")} onChange={(e) => {setValue("editpictureUrl",e.target.value); trigger("editpictureUrl");} } disabled /> </InputLabel><p style={paragraphStyle}>{errors.editpictureUrl?.message}</p>
   </Typography>
   <Typography id="modal-modal-text" sx={{ mt: 2 }}>
       <InputLabel style={labelStyle} >Worker Age&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="number" className="form-control" placeholder="Enter Worker Age" {...register("editage")}  onChange={(e) => {setValue("editage",e.target.value); trigger("editage");} }/> </InputLabel><p style={paragraphStyle}>{errors.editage?.message}</p>
@@ -145,10 +145,10 @@ const EditWorker = ({handleClose,formData,fishFarms,getData}) => {
       <InputLabel style={labelStyle}>Worker Middle Name&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Worker Middle Name" {...register("editmiddleName")}  onChange={(e) => {setValue("editmiddleName",e.target.value); trigger("editmiddleName");} }></Input> </InputLabel><p style={paragraphStyle}>{errors.editmiddleName?.message}</p>
   </Typography>
   <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-      <InputLabel style={labelStyle}>Worker Last Name&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Worker Last Name" {...register("editlastName")}  onChange={(e) => {setValue("editlastName",e.target.value); trigger("editlastName");} }></Input> </InputLabel><p style={paragraphStyle}>{errors.editlastName?.message}</p>
+      <InputLabel style={labelStyle} width={200}>Worker Last Name&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="text" className="form-control" placeholder="Enter Worker Last Name" {...register("editlastName")}  onChange={(e) => {setValue("editlastName",e.target.value); trigger("editlastName");} }></Input> </InputLabel><p style={paragraphStyle}>{errors.editlastName?.message}</p>
   </Typography>
   <Typography id="modal-modal-text" sx={{ mt: 2 }}>
-      <InputLabel style={labelStyle}>Worker Email&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="email" className="form-control" placeholder="Enter Worker Email" {...register("editemail")} onChange={(e) => {setValue("editemail",e.target.value); trigger("editemail");} }></Input> </InputLabel><p style={paragraphStyle}>{errors.editemail?.message}</p>
+      <InputLabel style={labelStyle}  >Worker Email&nbsp;&nbsp;&nbsp;&nbsp;:<Input type="email" className="form-control" placeholder="Enter Worker Email" {...register("editemail")} onChange={(e) => {setValue("editemail",e.target.value); trigger("editemail");} }></Input> </InputLabel><p style={paragraphStyle}>{errors.editemail?.message}</p>
   </Typography>
   <Typography id="modal-modal-text" sx={{ mt: 2 }}>
       <InputLabel style={labelStyle}>Select new certified date&nbsp;:

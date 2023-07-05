@@ -19,7 +19,7 @@ const FishFarmHome = () => {
       <div className="banner">
         <h1 className="page-name">Welcome to HavBruksloggen Fish Farm.</h1>
         <div className="hover-box">
-          <p className="p-tag">Havbruksloggen is an easy-to-use software system which collects all information about a fish farm in</p>
+          <p className="p-tag">Havbruksloggen is an easy-to-use software system which collects all information about a fish farm in.</p>
         </div>
       </div>
       <Slide>

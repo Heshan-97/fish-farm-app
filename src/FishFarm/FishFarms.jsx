@@ -10,7 +10,6 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import {Typography, Button, Container,Input,InputLabel,FormControl} from "@mui/material";
 import { styled } from '@mui/material/styles';
-
 //for the model
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
@@ -27,16 +26,17 @@ import { useForm} from "react-hook-form";
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from "yup";
 import EditFishFarm from "./FishFarmEdit";
+import '../Main.css';
 const schema = yup.object({
   farmName: yup.string().required('Fish farm name is required !'),
   selectedFile: yup.string('Image must be uploaded !').typeError('Image must be uploaded !').required('Image is required !'),
   /*bargeAvailability: yup.number('Something went Wrong !').min(0, 'Something went Wrong !').integer('Something went Wrong !').typeError('Something went Wrong !').required('Something went Wrong !!'), */
 });
 
-//css for error message
-const paragraphStyle = {
-  color: "red"
-};
+// //css for error message
+// const paragraphStyle = {
+//   color: "red"
+// };
 //css for input Lable
 const labelStyle = {
   fontFamily: "Arial",
@@ -183,7 +183,8 @@ const handleDelete = (farmId) =>{
       }
       if(result.status === 200)
       {
-        toast.success('Fish farm has been deleted !');
+        toast.error('Fish farm has been deleted !');
+        //toast('Fish farm has been deleted !');
         getData();
       }
       
@@ -298,7 +299,7 @@ const handleViewBoats = (farmId) => {
 
   return (
     
-    <Container>
+    <Container maxWidth={true}>
       <ToastContainer/>
       <TableContainer component={Paper}>
         <Typography variant="h4"><br/>&nbsp;&nbsp;Fish Farms</Typography>
@@ -329,8 +330,8 @@ const handleViewBoats = (farmId) => {
                     </StyledTableCell>
                     <StyledTableCell align="right">{item.farmName}</StyledTableCell>
                     <StyledTableCell align="right">{!!item.bargeAvailability ? 'Yes' : 'No'}</StyledTableCell>
-                    <StyledTableCell align="right"><Button variant="contained" color="primary" onClick={() => handleViewWorkers(item.farmId)} >View</Button></StyledTableCell>
-                    <StyledTableCell align="right"><Button variant="contained" color="primary" onClick={() => handleViewBoats(item.farmId)} >View</Button></StyledTableCell>
+                    <StyledTableCell align="right"><Button variant="outlined" color="primary" onClick={() => handleViewWorkers(item.farmId)} >View</Button></StyledTableCell>
+                    <StyledTableCell align="right"><Button variant="outlined" color="primary" onClick={() => handleViewBoats(item.farmId)} >View</Button></StyledTableCell>
                     <StyledTableCell align="right">
                       <Button variant="contained" color="inherit" onClick={() => handleEdit(item.farmId)} >Edit</Button>&nbsp;
                       <Button variant="contained" color="error" onClick={() => handleDelete(item.farmId)} > Delete </Button>
@@ -362,14 +363,14 @@ const handleViewBoats = (farmId) => {
           <Typography id="modal-modal-description" sx={{ mt: 2 }}> 
             <InputLabel style={labelStyle} >Fish Farm Name&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp; 
             <Input  type="text" className="form-control"  placeholder="Enter Fish Farm Name"  {...register("farmName")} onChange= {(e) => {setValue("farmName",e.target.value); trigger("farmName");  } }> </Input>
-            </InputLabel><p style={paragraphStyle}>{errors.farmName?.message}</p>
+            </InputLabel><p className="paragraphStyle">{errors.farmName?.message}</p>
              </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}> 
           <Box sx={{ maxWidth: 300 }}>
               <FormControl fullWidth>
               <InputLabel style={labelStyle} >Select Farm Image&nbsp;:&nbsp;</InputLabel> <br/><br/>
                 <Input type="file" className="form-control" {...register("selectedFile")}  onChange={(e) =>{handleUploadImg(e); trigger("selectedFile"); }}></Input>
-            </FormControl><p style={paragraphStyle}>{errors.selectedFile?.message}</p>
+            </FormControl><p className="paragraphStyle">{errors.selectedFile?.message}</p>
           </Box> 
           </Typography>
           <Typography id="modal-modal-description" sx={{ mt: 2 }}>
